@@ -1,4 +1,4 @@
-package com.halonix.rgbcolorpalette;
+package com.manmohan.rgbcolorpalette;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
