@@ -26,7 +26,7 @@ PaletteView paletteView;
 
             }
         });
-        paletteView.setStrokeWidth(80);
+        paletteView.setStrokeWidth(100);
 
     }
 }
