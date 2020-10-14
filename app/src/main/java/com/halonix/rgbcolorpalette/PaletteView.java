@@ -10,19 +10,21 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.SweepGradient;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.VectorDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import androidx.core.content.ContextCompat;
 
 class PaletteView extends View {
     private int stroke_width = 100;
     private Bitmap imgbmp;
     private PaletteListener mListener;
     private View mView;
-    private int right, left, top, bottom, margin, mWidth, mCurrentColor, previousColor, palletMargin = 100;
-    private Paint circlePaint;
+    private int mWidth, previousColor, palletMargin = 100;
+    private Paint circlePaint,  centerCirclePaint, colorPalettePaint;
     private float cornerCircleX, cornerCircleY;
     private float[] positions = {0.0f,
             1 / 6f, 2 / 6f, 3 / 6f,
@@ -65,10 +67,23 @@ class PaletteView extends View {
         circlePaint.setStrokeWidth(1);
         circlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         circlePaint.setAntiAlias(true);
+        if (stroke_width >= 80)
         circlePaint.setShadowLayer(10f, 0.0f, 0.0f, 0x80000000);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mDrawable = mContext.getDrawable(R.drawable.bulb);
-        }
+
+        mDrawable = ContextCompat.getDrawable(mContext,R.drawable.bulb);
+
+         centerCirclePaint = new Paint();
+        centerCirclePaint.setColor(Color.WHITE);
+        centerCirclePaint.setStrokeWidth(stroke_width / 10f);
+        centerCirclePaint.setStyle(Paint.Style.STROKE);
+        centerCirclePaint.setAntiAlias(true);
+        if (stroke_width >= 80)
+            centerCirclePaint.setShadowLayer(10f, 2.0f, 2.0f, 0x80000000);
+
+
+        colorPalettePaint = new Paint();
+        colorPalettePaint.setStyle(Paint.Style.FILL);
+        colorPalettePaint.setAntiAlias(true);
 
     }
 
@@ -76,7 +91,7 @@ class PaletteView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         cornerCircleX = w - palletMargin;
-        cornerCircleY = h / 2;
+        cornerCircleY = h / 2f;
     }
 
     @Override
@@ -89,24 +104,14 @@ class PaletteView extends View {
 
     @SuppressLint("ClickableViewAccessibility")
     void drawColorPallet(Canvas canvas) {
-        final Paint paint = new Paint();
-        paint.setStyle(Paint.Style.FILL);
 
-//      to make the entire canvas white
-//      paint.setColor(Color.WHITE);
-//      canvas.drawPaint(paint);
-
-        paint.setAntiAlias(true);
-        paint.setColor(Color.GREEN);
-        //  Log.e(TAG, "onDraw: "+this.getX() );
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            paint.setColor(Color.RED);
-            Shader gradient = new SweepGradient(this.getWidth() / 2, this.getHeight() / 2, colors, positions);
-            paint.setShader(gradient);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(stroke_width);
+            Shader gradient = new SweepGradient(this.getWidth() / 2f, this.getHeight() / 2f, colors, positions);
+            colorPalettePaint.setShader(gradient);
+            colorPalettePaint.setStyle(Paint.Style.STROKE);
+            colorPalettePaint.setStrokeWidth(stroke_width);
             RectF oval = getRectangle(palletMargin);
-            canvas.drawArc(oval, 0f, 360f, true, paint);
+            canvas.drawArc(oval, 0f, 360f, true, colorPalettePaint);
 
             this.setOnTouchListener(new OnTouchListener() {
                 @Override
@@ -118,10 +123,10 @@ class PaletteView extends View {
                     imgbmp = Bitmap.createBitmap(mView.getDrawingCache());
                     mView.setDrawingCacheEnabled(false);
                     try {
-                        Double clickDistance = Math.sqrt(Math.pow(evX - getPaletteCenterX(), 2) + Math.pow(evY - getPaletteCenterY(), 2));
-                        float innerRadis = (mWidth / 2) - (stroke_width / 2);
-                        float outerRadius = (mWidth / 2) + (stroke_width / 2);
-                        if (clickDistance > innerRadis && clickDistance < outerRadius) {
+                        double clickDistance = Math.sqrt(Math.pow(evX - getPaletteCenterX(), 2) + Math.pow(evY - getPaletteCenterY(), 2));
+                        float innerRadius = (mWidth / 2f) - (stroke_width / 2f);
+                        float outerRadius = (mWidth / 2f) + (stroke_width / 2f);
+                        if ((clickDistance > innerRadius) && (clickDistance < outerRadius)) {
                             updateCornerCircleLocation(evX, evY);
                         }
                     } catch (Exception ignore) {
@@ -136,24 +141,17 @@ class PaletteView extends View {
     }
 
     private void drawColorCircle(Canvas canvas) {
-        Paint paint = new Paint();
-        paint.setColor(Color.WHITE);
-        paint.setStrokeWidth(stroke_width / 10);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setAntiAlias(true);
-        if (stroke_width >= 80)
-            paint.setShadowLayer(10f, 2.0f, 2.0f, 0x80000000);
 
-        canvas.drawCircle(cornerCircleX, cornerCircleY, (stroke_width / 2) - (stroke_width / 10), paint);
-        canvas.drawCircle(getWidth() / 2, getHeight() / 2, getWidth() / 6, circlePaint);
+        canvas.drawCircle(cornerCircleX, cornerCircleY, (stroke_width / 2f) - (stroke_width / 10f), centerCirclePaint);
+        canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, getWidth() / 6f, circlePaint);
     }
 
     private void drawBulbImage(Canvas canvas){
         if(mDrawable!=null){
             int height =300;
             int width = 300;
-            mDrawable.setBounds(0,0,height , width);
-            canvas.translate(getPaletteCenterX()-(height/2),getPaletteCenterY()-(width/2));
+            mDrawable.setBounds(0,0,width , height);
+            canvas.translate(getPaletteCenterX()-(height/2f),getPaletteCenterY()-(width/2f));
             mDrawable.draw(canvas);
         }
 
@@ -180,7 +178,7 @@ class PaletteView extends View {
     }
 
     private void updateCornerCircleLocation(double x, double y) {
-        findCircleCornerPointAndUpdateListener(getPaletteCenterX(), getPaletteCenterY(), x, y, (mWidth / 2));
+        findCircleCornerPointAndUpdateListener(getPaletteCenterX(), getPaletteCenterY(), x, y, (mWidth / 2f));
     }
 
     public void findCircleCornerPointAndUpdateListener(double x1, double y1, double x2, double y2, double diatanceOfThirdPoint) {
@@ -196,7 +194,7 @@ class PaletteView extends View {
         y = (1 - T) * y1 + T * y2;
 //        for getting color of given x and y
         try {
-            mCurrentColor = imgbmp.getPixel((int) x, (int) y);
+            int mCurrentColor = imgbmp.getPixel((int) x, (int) y);
             if (mCurrentColor != previousColor) {
 
                 // changeCircleColor(mCurrentColor);
@@ -212,7 +210,7 @@ class PaletteView extends View {
                 }
             }
         } catch (Exception avoid) {
-
+            Log.e(TAG, "findCircleCornerPointAndUpdateListener: "+avoid );
         }
     }
 
@@ -223,10 +221,6 @@ class PaletteView extends View {
         // We'll start listening for touches now that the implementer cares about them
         if (listener == null) {
             setOnTouchListener(null);
-        } else {
-//            setOnTouchListener(mTouchListener);
-            // Notify the listener of our current color
-            //   mListener.onColorSelected(mCurrentColor);
         }
     }
 
@@ -238,19 +232,20 @@ class PaletteView extends View {
 
 
     public float getPaletteRadius() {
-        return mWidth / 2;
+        return mWidth / 2f;
     }
 
     public float getPaletteCenterX() {
-        return mView.getWidth() / 2;
+        return mView.getWidth() / 2f;
     }
 
     public float getPaletteCenterY() {
-        return mView.getHeight() / 2;
+        return mView.getHeight() / 2f;
     }
 
 
     private RectF getRectangle(int margin2) {
+        int right, left, top, bottom, margin;
         margin = margin2;
         left = margin;
         right = (this.getWidth() - margin);
