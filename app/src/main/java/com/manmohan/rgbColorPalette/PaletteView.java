@@ -1,4 +1,4 @@
-package com.manmohan.rgbcolorpalette;
+package com.manmohan.rgbColorPalette;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package com.manmohan.rgbcolorpalette;
+package com.manmohan.rgbColorPalette;
 
 import androidx.appcompat.app.AppCompatActivity;
 

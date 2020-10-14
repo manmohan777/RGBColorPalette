@@ -7,7 +7,7 @@
 
     >
 
-    <com.manmohan.rgbcolorpalette.PaletteView
+    <com.manmohan.rgbColorPalette.PaletteView
         android:id="@+id/palette_view"
         android:layout_width="match_parent"
         android:layout_height="500dp"
