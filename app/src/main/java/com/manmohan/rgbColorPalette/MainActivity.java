@@ -2,9 +2,11 @@ package com.manmohan.rgbColorPalette;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 
 public class MainActivity extends AppCompatActivity {
 PaletteView paletteView;
@@ -25,6 +27,7 @@ PaletteView paletteView;
             public void onSelectXY(double x, double y) {
 
             }
+
         });
         paletteView.setStrokeWidth(100);
 
