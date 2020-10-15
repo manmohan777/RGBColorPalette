@@ -99,8 +99,8 @@ class PaletteView extends View {
             cornerCircleX = w - palletMargin;
             cornerCircleY = h / 2f;
         } else {
-            cornerCircleX = w/2f;
-            cornerCircleY = h/2f;
+            cornerCircleX = (((w - h) / 2f) + h)-palletMargin;
+            cornerCircleY = h / 2f;
         }
         oval = getRectangle(palletMargin);
         mView.setDrawingCacheEnabled(true);
