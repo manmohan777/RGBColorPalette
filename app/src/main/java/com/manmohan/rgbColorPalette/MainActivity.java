@@ -1,6 +1,7 @@
 package com.manmohan.rgbColorPalette;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -16,7 +17,6 @@ PaletteView paletteView;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         paletteView = findViewById(R.id.palette_view);
-
         paletteView.setListener(new PaletteView.PaletteListener() {
             @Override
             public void onColorSelected(int color) {
@@ -28,8 +28,10 @@ PaletteView paletteView;
 
             }
 
+
         });
         paletteView.setStrokeWidth(100);
+        paletteView.setCENTER_IMAGE_DRAWABLE(ContextCompat.getDrawable(this,R.drawable.bulb));
 
     }
 }
