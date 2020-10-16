@@ -21,7 +21,6 @@ import androidx.core.content.ContextCompat;
 class PaletteView extends View {
     public static int VIEW_MARGIN = 100;
     private int STROKE_WIDTH = 100;
-    private static Bitmap imgbmp;
     private PaletteListener mListener;
     private View mView;
     private int mPaletteDiameter, previousColor;
@@ -39,7 +38,6 @@ class PaletteView extends View {
     final int VIOLET = Color.rgb(255, 0, 255);
 
     private int[] colors = {RED, VIOLET, BLUE, TEAL, GREEN, YELLOW, RED};
-    private static boolean bitmapFlag = false;
 
     private Drawable CENTER_IMAGE_DRAWABLE;
     private RectF oval;
@@ -65,10 +63,9 @@ class PaletteView extends View {
 
 
     private void init(Context context) {
-        Log.e(TAG, "init:  called" );
+        Log.e(TAG, "init:  called");
         mContext = context;
         mView = this;
-        bitmapFlag = false;
 
         circlePaint = new Paint();
         circlePaint.setColor(Color.RED);
@@ -99,7 +96,7 @@ class PaletteView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        Log.e(TAG, "onSizeChanged: called" );
+        Log.e(TAG, "onSizeChanged: called");
         if (w < h) {
             cornerCircleX = w - VIEW_MARGIN;
             cornerCircleY = h / 2f;
@@ -109,29 +106,15 @@ class PaletteView extends View {
         }
         oval = getRectangle(VIEW_MARGIN);
 
-        if(!bitmapFlag) {
-            mView.setDrawingCacheEnabled(true);
-            try {
-                imgbmp = mView.getDrawingCache() != null ? Bitmap.createBitmap(mView.getDrawingCache()) : imgbmp;
-            } catch (Exception e) {
-                Log.e(TAG, "onSizeChanged: ", e);
-            }
-            mView.setDrawingCacheEnabled(false);
-            bitmapFlag = true;
-            invalidate();
-        }
+
     }
 
     @Override
     protected void onDraw(final Canvas canvas) {
         super.onDraw(canvas);
         drawColorPallet(canvas);
-        if (bitmapFlag) {
-            drawColorCircle(canvas);
-            drawBulbImage(canvas);
-
-
-        }
+        drawColorCircle(canvas);
+        drawBulbImage(canvas);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -229,10 +212,10 @@ class PaletteView extends View {
         y = (1 - T) * y1 + T * y2;
 //        for getting color of given x and y
         try {
-//            Log.e(TAG, "findCircleCornerPointAndUpdateListener: angle" + Math.toDegrees(Math.atan2(y - y1, x - x1)));
-//            Log.e(TAG, "findCircleCornerPointAndUpdateListener: (x,y) , center(x2,y2), (" + x + " ," + y + "), (" + x1 + " ," + y1 + "), " + diatanceOfThirdPoint);
+            float touchAngle = (float) Math.atan2(y - y1, x - x1);
+            Log.e(TAG, "findCircleCornerPointAndUpdateListener: color from angle" + calculateColor(touchAngle));
 
-            int mCurrentColor = imgbmp.getPixel((int) x, (int) y);
+            int mCurrentColor = calculateColor(touchAngle);
             if (mCurrentColor != previousColor) {
                 // changeCircleColor(mCurrentColor);
                 mListener.onSelectXY(x, y);
@@ -260,8 +243,6 @@ class PaletteView extends View {
             setOnTouchListener(null);
         }
     }
-
-
 
 
     public float getPaletteRadius() {
@@ -297,9 +278,41 @@ class PaletteView extends View {
         return new RectF(left, top, right, bottom);
     }
 
+    private int calculateColor(float angle) {
+        float unit = (float) (angle / (2 * Math.PI));
+        if (unit < 0) {
+            unit += 1;
+        }
+        if (unit <= 0) {
+            return colors[0];
+        }
+        if (unit >= 1) {
+
+            return colors[colors.length - 1];
+        }
+
+        float p = unit * (colors.length - 1);
+        int i = (int) p;
+        p -= i;
+
+        int c0 = colors[i];
+        int c1 = colors[i + 1];
+        int a = ave(Color.alpha(c0), Color.alpha(c1), p);
+        int r = ave(Color.red(c0), Color.red(c1), p);
+        int g = ave(Color.green(c0), Color.green(c1), p);
+        int b = ave(Color.blue(c0), Color.blue(c1), p);
+
+        return Color.argb(a, r, g, b);
+    }
+
+    private int ave(int s, int d, float p) {
+        return s + Math.round(p * (d - s));
+    }
+
 
     public interface PaletteListener {
         void onColorSelected(int color);
+
         void onSelectXY(double x, double y);
 
     }
