@@ -2,7 +2,6 @@ package com.manmohan.rgbColorPalette;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -16,7 +15,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.core.content.ContextCompat;
 
 class PaletteView extends View {
     public static int VIEW_MARGIN = 100;
@@ -24,7 +22,7 @@ class PaletteView extends View {
     private PaletteListener mListener;
     private View mView;
     private int mPaletteDiameter, previousColor;
-    private Paint circlePaint, centerCirclePaint, colorPalettePaint;
+    private Paint changingColorCirclePaint, cornerCirclePaint, colorPalettePaint;
     private float cornerCircleX, cornerCircleY;
     private float[] positions = {0.0f,
             1 / 6f, 2 / 6f, 3 / 6f,
@@ -67,23 +65,19 @@ class PaletteView extends View {
         mContext = context;
         mView = this;
 
-        circlePaint = new Paint();
-        circlePaint.setColor(Color.RED);
-        circlePaint.setStrokeWidth(1);
-        circlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        circlePaint.setAntiAlias(true);
-        if (STROKE_WIDTH >= 80)
-            circlePaint.setShadowLayer(10f, 0.0f, 0.0f, 0x80000000);
+        changingColorCirclePaint = new Paint();
+        changingColorCirclePaint.setColor(Color.RED);
+        changingColorCirclePaint.setStrokeWidth(1);
+        changingColorCirclePaint.setStyle(Paint.Style.FILL);
+        changingColorCirclePaint.setAntiAlias(true);
 
-//        CENTER_IMAGE_DRAWABLE = ContextCompat.getDrawable(mContext, R.drawable.bulb);
-
-        centerCirclePaint = new Paint();
-        centerCirclePaint.setColor(Color.WHITE);
-        centerCirclePaint.setStrokeWidth(STROKE_WIDTH / 10f);
-        centerCirclePaint.setStyle(Paint.Style.STROKE);
-        centerCirclePaint.setAntiAlias(true);
+        cornerCirclePaint = new Paint();
+        cornerCirclePaint.setColor(Color.WHITE);
+        cornerCirclePaint.setStrokeWidth(STROKE_WIDTH / 8f);
+        cornerCirclePaint.setStyle(Paint.Style.STROKE);
+        cornerCirclePaint.setAntiAlias(true);
         if (STROKE_WIDTH >= 80)
-            centerCirclePaint.setShadowLayer(10f, 2.0f, 2.0f, 0x80000000);
+            cornerCirclePaint.setShadowLayer(10f, 2.0f, 2.0f, 0x80000000);
 
 
         colorPalettePaint = new Paint();
@@ -155,8 +149,9 @@ class PaletteView extends View {
 
     private void drawColorCircle(Canvas canvas) {
 
-        canvas.drawCircle(cornerCircleX, cornerCircleY, (STROKE_WIDTH / 2f) - (STROKE_WIDTH / 10f), centerCirclePaint);
-        canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, mPaletteDiameter / 6f, circlePaint);
+        canvas.drawCircle(cornerCircleX, cornerCircleY, (STROKE_WIDTH / 2f) - (STROKE_WIDTH / 10f), cornerCirclePaint);
+        canvas.drawCircle(cornerCircleX, cornerCircleY, (STROKE_WIDTH / 2f) - (STROKE_WIDTH / 8f), changingColorCirclePaint);
+        canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, mPaletteDiameter / 6f, changingColorCirclePaint);
     }
 
     private void drawBulbImage(Canvas canvas) {
@@ -171,7 +166,7 @@ class PaletteView extends View {
     }
 
     private void changeCircleColorWithXY(int color, float x, float y) {
-        circlePaint.setColor(color);
+        changingColorCirclePaint.setColor(color);
         cornerCircleX = x;
         cornerCircleY = y;
         invalidate();
