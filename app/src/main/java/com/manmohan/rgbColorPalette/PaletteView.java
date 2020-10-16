@@ -19,25 +19,28 @@ import android.view.View;
 import androidx.core.content.ContextCompat;
 
 class PaletteView extends View {
-    private int stroke_width = 100;
+    public static int VIEW_MARGIN = 100;
+    private int STROKE_WIDTH = 100;
     private static Bitmap imgbmp;
     private PaletteListener mListener;
     private View mView;
-    private int mPaletteDiameter, previousColor, palletMargin = 100;
+    private int mPaletteDiameter, previousColor;
     private Paint circlePaint, centerCirclePaint, colorPalettePaint;
     private float cornerCircleX, cornerCircleY;
     private float[] positions = {0.0f,
             1 / 6f, 2 / 6f, 3 / 6f,
             4 / 6f, 5 / 6f, 1.0f};
+
     final int RED = Color.rgb(255, 0, 0);
     final int YELLOW = Color.rgb(255, 255, 0);
     final int GREEN = Color.rgb(0, 255, 0);
     final int TEAL = Color.rgb(0, 255, 255);
     final int BLUE = Color.rgb(0, 0, 255);
     final int VIOLET = Color.rgb(255, 0, 255);
-    private static boolean bitmapFlag = false;
 
     private int[] colors = {RED, VIOLET, BLUE, TEAL, GREEN, YELLOW, RED};
+    private static boolean bitmapFlag = false;
+
     Drawable mDrawable;
     private RectF oval;
 
@@ -69,17 +72,17 @@ class PaletteView extends View {
         circlePaint.setStrokeWidth(1);
         circlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         circlePaint.setAntiAlias(true);
-        if (stroke_width >= 80)
+        if (STROKE_WIDTH >= 80)
             circlePaint.setShadowLayer(10f, 0.0f, 0.0f, 0x80000000);
 
         mDrawable = ContextCompat.getDrawable(mContext, R.drawable.bulb);
 
         centerCirclePaint = new Paint();
         centerCirclePaint.setColor(Color.WHITE);
-        centerCirclePaint.setStrokeWidth(stroke_width / 10f);
+        centerCirclePaint.setStrokeWidth(STROKE_WIDTH / 10f);
         centerCirclePaint.setStyle(Paint.Style.STROKE);
         centerCirclePaint.setAntiAlias(true);
-        if (stroke_width >= 80)
+        if (STROKE_WIDTH >= 80)
             centerCirclePaint.setShadowLayer(10f, 2.0f, 2.0f, 0x80000000);
 
 
@@ -96,17 +99,16 @@ class PaletteView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         Log.e(TAG, "onSizeChanged: called");
         if (w < h) {
-            cornerCircleX = w - palletMargin;
+            cornerCircleX = w - VIEW_MARGIN;
             cornerCircleY = h / 2f;
         } else {
-            cornerCircleX = (((w - h) / 2f) + h)-palletMargin;
+            cornerCircleX = (((w - h) / 2f) + h)- VIEW_MARGIN;
             cornerCircleY = h / 2f;
         }
-        oval = getRectangle(palletMargin);
+        oval = getRectangle(VIEW_MARGIN);
         mView.setDrawingCacheEnabled(true);
-        Log.e("bitmap", "" + mView.getDrawingCache());
         try {
-            imgbmp = Bitmap.createBitmap(mView.getDrawingCache());
+            imgbmp = mView.getDrawingCache()!=null ? Bitmap.createBitmap(mView.getDrawingCache()):imgbmp;
         } catch (Exception e) {
             Log.e(TAG, "onSizeChanged: ", e);
         }
@@ -130,12 +132,11 @@ class PaletteView extends View {
 
     @SuppressLint("ClickableViewAccessibility")
     void drawColorPallet(Canvas canvas) {
-        Log.e(TAG, "drawColorPallet: called");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Shader gradient = new SweepGradient(this.getWidth() / 2f, this.getHeight() / 2f, colors, positions);
             colorPalettePaint.setShader(gradient);
             colorPalettePaint.setStyle(Paint.Style.STROKE);
-            colorPalettePaint.setStrokeWidth(stroke_width);
+            colorPalettePaint.setStrokeWidth(STROKE_WIDTH);
 
 
             canvas.drawArc(oval, 0f, 360f, true, colorPalettePaint);
@@ -149,8 +150,8 @@ class PaletteView extends View {
 
                     try {
                         double clickDistance = Math.sqrt(Math.pow(evX - getPaletteCenterX(), 2) + Math.pow(evY - getPaletteCenterY(), 2));
-                        float innerRadius = (mPaletteDiameter / 2f) - (stroke_width / 2f);
-                        float outerRadius = (mPaletteDiameter / 2f) + (stroke_width / 2f);
+                        float innerRadius = (mPaletteDiameter / 2f) - (STROKE_WIDTH / 2f);
+                        float outerRadius = (mPaletteDiameter / 2f) + (STROKE_WIDTH / 2f);
                         if ((clickDistance > innerRadius) && (clickDistance < outerRadius)) {
                             updateCornerCircleLocation(evX, evY);
                         }
@@ -166,14 +167,12 @@ class PaletteView extends View {
     }
 
     private void drawColorCircle(Canvas canvas) {
-        Log.e(TAG, "drawColorCircle: called");
 
-        canvas.drawCircle(cornerCircleX, cornerCircleY, (stroke_width / 2f) - (stroke_width / 10f), centerCirclePaint);
+        canvas.drawCircle(cornerCircleX, cornerCircleY, (STROKE_WIDTH / 2f) - (STROKE_WIDTH / 10f), centerCirclePaint);
         canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, mPaletteDiameter / 6f, circlePaint);
     }
 
     private void drawBulbImage(Canvas canvas) {
-        Log.e(TAG, "drawBulbImage: called");
         if (mDrawable != null) {
             int height = mPaletteDiameter / 6;
             int width = mPaletteDiameter / 6;
@@ -200,7 +199,7 @@ class PaletteView extends View {
 
 
     public void setStrokeWidth(int w) {
-        stroke_width = w;
+        STROKE_WIDTH = w;
         invalidate();
     }
 
