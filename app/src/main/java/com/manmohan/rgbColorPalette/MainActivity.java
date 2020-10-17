@@ -27,8 +27,6 @@ PaletteView paletteView;
             public void onSelectXY(double x, double y) {
 
             }
-
-
         });
         paletteView.setStrokeWidth(100);
         paletteView.setCENTER_IMAGE_DRAWABLE(ContextCompat.getDrawable(this,R.drawable.bulb));

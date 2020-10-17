@@ -5,6 +5,8 @@
 
 Created a new design for color picker in android.
 
+
+
 <h2>Documentation</h2>
 
 For using this color picker you have to copy  <b> "PaletteView.java" </b> file into your project Directory
