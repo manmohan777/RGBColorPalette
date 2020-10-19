@@ -1,7 +1,7 @@
 # RGBColorPalette
 
 
-![Alt text](readmeFiles/demo.gif =100x20 "RGB Color Picker" )
+![Alt text](readmeFiles/demo.gif=100x20 "RGB Color Picker" )
 
 Created a new design for color picker in android.
 
