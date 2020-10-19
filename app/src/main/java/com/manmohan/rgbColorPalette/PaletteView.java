@@ -39,6 +39,7 @@ class PaletteView extends View {
 
     private Drawable CENTER_IMAGE_DRAWABLE;
     private RectF oval;
+    private boolean pointerMoving = false;
 
 
     private static final String TAG = "PaletteView";
@@ -127,18 +128,27 @@ class PaletteView extends View {
                 public boolean onTouch(View v, MotionEvent event) {
                     final float evX = event.getX();
                     final float evY = event.getY();
+                    double clickDistance = Math.sqrt(Math.pow(evX - getPaletteCenterX(), 2) + Math.pow(evY - getPaletteCenterY(), 2));
+                    float innerRadius = (mPaletteDiameter / 2f) - (STROKE_WIDTH / 2f);
+                    float outerRadius = (mPaletteDiameter / 2f) + (STROKE_WIDTH / 2f);
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            if ((clickDistance > innerRadius) && (clickDistance < outerRadius)) {
+                                pointerMoving = true;
+                                updateCornerCircleLocation(evX, evY);
 
-
-                    try {
-                        double clickDistance = Math.sqrt(Math.pow(evX - getPaletteCenterX(), 2) + Math.pow(evY - getPaletteCenterY(), 2));
-                        float innerRadius = (mPaletteDiameter / 2f) - (STROKE_WIDTH / 2f);
-                        float outerRadius = (mPaletteDiameter / 2f) + (STROKE_WIDTH / 2f);
-                        if ((clickDistance > innerRadius) && (clickDistance < outerRadius)) {
-                            updateCornerCircleLocation(evX, evY);
-                        }
-                    } catch (Exception ignore) {
+                            }
+                            Log.e(TAG, "onTouch: " + MotionEvent.ACTION_DOWN);
+                            break;
+                        case MotionEvent.ACTION_MOVE:
+                            if(pointerMoving){
+                                updateCornerCircleLocation(evX, evY);
+                            }
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            pointerMoving = false;
+                            break;
                     }
-
                     return true;
                 }
 
@@ -208,7 +218,6 @@ class PaletteView extends View {
 //        for getting color of given x and y
         try {
             float touchAngle = (float) Math.atan2(y - y1, x - x1);
-            Log.e(TAG, "findCircleCornerPointAndUpdateListener: color from angle" + calculateColor(touchAngle));
 
             int mCurrentColor = calculateColor(touchAngle);
             if (mCurrentColor != previousColor) {
