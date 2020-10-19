@@ -2,7 +2,7 @@
 
 
 
-<img src="readmeFiles/demo.gif" width="300">
+<img alt="readmeFiles/demo.gif" src="readmeFiles/demo.gif" width="300">
 
 Created a new design for color picker in android.
 
