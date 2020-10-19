@@ -1,7 +1,7 @@
 # RGBColorPalette
 
 
-![Alt text](readmeFiles/demo.gif?raw=true "RGB Color Picker")
+![Alt text](readmeFiles/demo.gif =100x20 "RGB Color Picker" )
 
 Created a new design for color picker in android.
 
@@ -60,7 +60,7 @@ PaletteView paletteView;
 
 <b> paletteView.setStrokeWidth(int i ) </b>  is used to set the stroke width of the color palette.
 
-<b> paletteView.setCENTER_IMAGE_DRAWABLE(ContextCompat.getDrawable(Drawable drawable)) </b> is used to set the center image.
+<b> paletteView.setCENTER_IMAGE_DRAWABLE(Drawable drawable) </b> is used to set the center image.
 
 <H2>License</H2>
 	
