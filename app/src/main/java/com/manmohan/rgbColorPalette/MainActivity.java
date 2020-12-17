@@ -28,8 +28,10 @@ PaletteView paletteView;
 
             }
         });
-        paletteView.setStrokeWidth(100);
         paletteView.setCENTER_IMAGE_DRAWABLE(ContextCompat.getDrawable(this,R.drawable.bulb));
+//        paletteView.setCenterCircleRadius(100);  //for setting center circle radius
+//        paletteView.setStrokeWidth(100);  //for setting outer color circle stroke width
+
 
     }
 }

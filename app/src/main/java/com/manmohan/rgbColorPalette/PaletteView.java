@@ -15,10 +15,10 @@ import android.view.View;
 
 
 class PaletteView extends View {
-    public static int VIEW_MARGIN = 100;
-    private int STROKE_WIDTH = 100;
+    public static int view_margin = 100;
+    private static int stroke_width = 100;
+    private static int height,width,centerCircleRadius;
     private PaletteListener mListener;
-    private View mView;
     private int mPaletteDiameter, previousColor;
     private Paint changingColorCirclePaint, cornerCirclePaint, colorPalettePaint;
     private float cornerCircleX, cornerCircleY;
@@ -62,7 +62,6 @@ class PaletteView extends View {
     private void init(Context context) {
         Log.e(TAG, "init:  called");
         mContext = context;
-        mView = this;
 
         changingColorCirclePaint = new Paint();
         changingColorCirclePaint.setColor(Color.RED);
@@ -72,12 +71,10 @@ class PaletteView extends View {
 
         cornerCirclePaint = new Paint();
         cornerCirclePaint.setColor(Color.WHITE);
-        cornerCirclePaint.setStrokeWidth(STROKE_WIDTH / 8f);
+        cornerCirclePaint.setStrokeWidth(stroke_width / 8f);
         cornerCirclePaint.setStyle(Paint.Style.STROKE);
         cornerCirclePaint.setAntiAlias(true);
-        if (STROKE_WIDTH >= 80) {
-            cornerCirclePaint.setShadowLayer(10f, 2.0f, 2.0f, 0x80000000);
-        }
+        cornerCirclePaint.setShadowLayer(10f, 2.0f, 2.0f, 0x80000000);
 
 
         colorPalettePaint = new Paint();
@@ -90,14 +87,33 @@ class PaletteView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        Log.e(TAG, "onSizeChanged: called");
-        if (w < h) {
-            cornerCircleX = w - VIEW_MARGIN;
-        } else {
-            cornerCircleX = (((w - h) / 2f) + h) - VIEW_MARGIN;
+        Log.e(TAG, "onSizeChanged: called " + h+" "+w);
+
+        if(w == 0&&h==0){
+            width = 100;
+            height = 100;
+            Log.e(TAG, "onSizeChanged: 1" );
+        }else if(h == 0){
+            width = height = w;
+
+            Log.e(TAG, "onSizeChanged: 2" );
+        }else if(w==0){
+            height = width = h;
+            Log.e(TAG, "onSizeChanged: 3" );
+        }else{
+            height = h;
+            width = w;
+            Log.e(TAG, "onSizeChanged: 4" );
         }
-        cornerCircleY = h / 2f;
-        oval = getRectangle(VIEW_MARGIN);
+        Log.e(TAG, "onSizeChanged: "+height+" "+width );
+        if (width < height) {
+            cornerCircleX = width - view_margin;
+        } else {
+            cornerCircleX = (((width - height) / 2f) + height) - view_margin;
+        }
+
+        cornerCircleY = height / 2f;
+        oval = getRectangle(view_margin);
 
 
     }
@@ -105,6 +121,7 @@ class PaletteView extends View {
     @Override
     protected void onDraw(final Canvas canvas) {
         super.onDraw(canvas);
+        Log.e(TAG, "onDraw: called" );
         drawColorPallet(canvas);
         drawColorCircle(canvas);
         drawBulbImage(canvas);
@@ -116,10 +133,10 @@ class PaletteView extends View {
     }
 
     void drawColorPallet(Canvas canvas) {
-        Shader gradient = new SweepGradient(this.getWidth() / 2f, this.getHeight() / 2f, colors, positions);
+        Shader gradient = new SweepGradient(width / 2f, height / 2f, colors, positions);
         colorPalettePaint.setShader(gradient);
         colorPalettePaint.setStyle(Paint.Style.STROKE);
-        colorPalettePaint.setStrokeWidth(STROKE_WIDTH);
+        colorPalettePaint.setStrokeWidth(stroke_width);
 
 
         canvas.drawArc(oval, 0f, 360f, true, colorPalettePaint);
@@ -128,21 +145,19 @@ class PaletteView extends View {
     }
 
 
-
-
-
-
-    OnTouchListener paletteTouchListener= new OnTouchListener() {
+    OnTouchListener paletteTouchListener = new OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             final float evX = event.getX();
             final float evY = event.getY();
             double clickDistance = Math.sqrt(Math.pow(evX - getPaletteCenterX(), 2) + Math.pow(evY - getPaletteCenterY(), 2));
-            float innerRadius = (mPaletteDiameter / 2f) - (STROKE_WIDTH / 2f);
-            float outerRadius = (mPaletteDiameter / 2f) + (STROKE_WIDTH / 2f);
+            float innerRadius = (mPaletteDiameter / 2f) - (stroke_width / 2f);
+            float outerRadius = (mPaletteDiameter / 2f) + (stroke_width / 2f);
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
+
                     if ((clickDistance > innerRadius) && (clickDistance < outerRadius)) {
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
                         pointerMoving = true;
                         updateCornerCircleLocation(evX, evY);
 
@@ -154,6 +169,7 @@ class PaletteView extends View {
                     }
                     break;
                 case MotionEvent.ACTION_UP:
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
                     pointerMoving = false;
                     performClick();
                     break;
@@ -164,15 +180,15 @@ class PaletteView extends View {
 
     private void drawColorCircle(Canvas canvas) {
 
-        canvas.drawCircle(cornerCircleX, cornerCircleY, (STROKE_WIDTH / 2f) - (STROKE_WIDTH / 10f), cornerCirclePaint);
-        canvas.drawCircle(cornerCircleX, cornerCircleY, (STROKE_WIDTH / 2f) - (STROKE_WIDTH / 8f), changingColorCirclePaint);
-        canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, mPaletteDiameter / 6f, changingColorCirclePaint);
+        canvas.drawCircle(cornerCircleX, cornerCircleY, (stroke_width / 2f) - (stroke_width / 10f), cornerCirclePaint);
+        canvas.drawCircle(cornerCircleX, cornerCircleY, (stroke_width / 2f) - (stroke_width / 8f), changingColorCirclePaint);
+        canvas.drawCircle(width / 2f, height / 2f, centerCircleRadius == 0 ? mPaletteDiameter / 4f : centerCircleRadius, changingColorCirclePaint);
     }
 
     private void drawBulbImage(Canvas canvas) {
         if (CENTER_IMAGE_DRAWABLE != null) {
-            int height = mPaletteDiameter / 6;
-            int width = mPaletteDiameter / 6;
+            int height = mPaletteDiameter / 4;
+            int width = mPaletteDiameter / 4;
             CENTER_IMAGE_DRAWABLE.setBounds(0, 0, width, height);
             canvas.translate(getPaletteCenterX() - (height / 2f), getPaletteCenterY() - (width / 2f));
             CENTER_IMAGE_DRAWABLE.draw(canvas);
@@ -199,27 +215,27 @@ class PaletteView extends View {
     }
 
     private float getPaletteCenterX() {
-        return mView.getWidth() / 2f;
+        return width / 2f;
     }
 
     private float getPaletteCenterY() {
-        return mView.getHeight() / 2f;
+        return height / 2f;
     }
 
     private RectF getRectangle(int margin2) {
         int right, left, top, bottom, margin;
         margin = margin2;
-        if (this.getWidth() < this.getHeight()) {
+        if (width < height) {
             left = margin;
-            right = (this.getWidth() - margin);
+            right = (width - margin);
             mPaletteDiameter = right - left;
-            top = ((this.getHeight() - mPaletteDiameter) / 2);
+            top = ((height - mPaletteDiameter) / 2);
             bottom = ((mPaletteDiameter + top));
         } else {
             top = margin;
-            bottom = (this.getHeight() - margin);
+            bottom = (height - margin);
             mPaletteDiameter = bottom - top;
-            left = ((this.getWidth() - mPaletteDiameter) / 2);
+            left = ((width - mPaletteDiameter) / 2);
             right = ((mPaletteDiameter + left));
         }
 
@@ -256,6 +272,7 @@ class PaletteView extends View {
     private int ave(int s, int d, float p) {
         return s + Math.round(p * (d - s));
     }
+
     private void findCircleCornerPointAndUpdateListener(double x1, double y1, double x2, double y2, double diatanceOfThirdPoint) {
 
 //    calculate distance between the two points
@@ -292,7 +309,12 @@ class PaletteView extends View {
 
 
     public void setStrokeWidth(int w) {
-        STROKE_WIDTH = w;
+        stroke_width = w;
+        invalidate();
+    }
+
+    public void setCenterCircleRadius(int radius){
+        centerCircleRadius = radius;
         invalidate();
     }
 
@@ -309,7 +331,6 @@ class PaletteView extends View {
             setOnTouchListener(null);
         }
     }
-
 
 
     public interface PaletteListener {
